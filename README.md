@@ -870,7 +870,7 @@ nvm exposes the following environment variables:
 - `NVM_CD_FLAGS` - used to maintain compatibility with zsh.
 - `NVM_RC_VERSION` - version from .nvmrc file if being used.
 
-Additionally, nvm modifies `PATH`, and, if present, `MANPATH` and `NODE_PATH` when changing versions.
+Additionally, nvm modifies `PATH` when changing versions, along with `MANPATH` wherever a `manpath` command exists, and `NODE_PATH`, if present.
 
 The following environment variables can be set to configure `nvm install`:
 

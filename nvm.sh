@@ -4257,7 +4257,11 @@ nvm() {
             nvm_err "Could not find ${NVM_DIR}/*/share/man in \${MANPATH}"
           fi
         else
-          export MANPATH="${NEWPATH}"
+          # `man` treats both of these as unset anyway, so leave nothing behind
+          case "${NEWPATH}" in
+            '' | ':') unset MANPATH ;;
+            *) export MANPATH="${NEWPATH}" ;;
+          esac
           if [ "${NVM_SILENT:-0}" -ne 1 ]; then
             nvm_echo "${NVM_DIR}/*/share/man removed from \${MANPATH}"
           fi
@@ -4380,12 +4384,13 @@ nvm() {
       # Change current version
       PATH="$(nvm_change_path "${PATH}" "/bin" "${NVM_VERSION_DIR}")"
       if nvm_has manpath; then
-        if [ -z "${MANPATH-}" ]; then
-          local MANPATH
-          MANPATH=$(manpath)
-        fi
-        # Change current version
-        MANPATH="$(nvm_change_path "${MANPATH}" "/share/man" "${NVM_VERSION_DIR}")"
+        MANPATH="$(nvm_change_path "${MANPATH-}" "/share/man" "${NVM_VERSION_DIR}")"
+        # `man` consults its configured default path only where the list has an
+        # empty entry; a trailing one keeps nvm's directory ahead of it
+        case "${MANPATH}" in
+          :* | *::* | *:) ;;
+          *) MANPATH="${MANPATH}:" ;;
+        esac
         export MANPATH
       fi
       export PATH
